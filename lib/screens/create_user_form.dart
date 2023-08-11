@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:io';
+
+import '../main.dart';
 
 class CreateUserForm extends StatefulWidget {
   const CreateUserForm({super.key});
@@ -32,6 +35,7 @@ class _CreateUserFormState extends State<CreateUserForm> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return Padding(
         padding: EdgeInsets.all(20),
         child: Form(
@@ -105,45 +109,66 @@ class _CreateUserFormState extends State<CreateUserForm> {
               ),
               SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    child: const Text('Submit'),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        final newRecord = {
-                          "name" : nameController.text,
-                          "lastName" : lastNameController.text,
-                          "email" : emailController.text,
-                          "birthDate" : dateInput.text,
-                          "id" : 0,
-                        };
-                        addNewUserLocalJSON(newRecord);
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              content: Text('User created successfully'),
-                            );
-                          },
-                        );
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      child: const Text('Submit'),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          final newRecord = {
+                            "name" : nameController.text,
+                            "lastName" : lastNameController.text,
+                            "email" : emailController.text,
+                            "birthDate" : dateInput.text,
+                            "id" : 0,
+                          };
+                          addNewUserLocalJSON(newRecord);
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('User created successfully'),
+                                actions: <Widget>[
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          appState.selectedIndex = 0;
+                                        });
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('New User')
+                                  ),
+                                  SizedBox(width: 20),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          appState.selectedIndex = 1;
+                                        });
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('List Users')
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          ClearInputs();
+                        }
+                      },
+                    ),
+                    SizedBox(width: 16),
+                    ElevatedButton(
+                      child: const Text('Clear'),
+                      onPressed: () {
                         ClearInputs();
-                      }
-                    },
-                  ),
-                  SizedBox(width: 16),
-                  ElevatedButton(
-                    child: const Text('Clear'),
-                    onPressed: () {
-                      ClearInputs();
-                    },
-                  ),
-                ]
+                      },
+                    ),
+                  ]
               ),
             ],
           ),
         )
-      );
+    );
   }
 }
 

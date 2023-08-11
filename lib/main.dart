@@ -1,9 +1,41 @@
+import 'dart:core';
 import 'package:flutter/material.dart';
 import 'screens/create_user_form.dart';
 import 'screens/list_users.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+class AppState extends ChangeNotifier {
+  int _selectedIndex = 0;
+
+  int get selectedIndex => _selectedIndex;
+
+  set selectedIndex(int index) {
+    _selectedIndex = index;
+    notifyListeners();
+  }
+
+  String _appTitle = "Create User";
+
+  String get appTitle => _appTitle;
+
+  set appTitle(String title){
+    _appTitle = title;
+    notifyListeners();
+  }
+
+  bool _showNavigationRail = true;
+
+  bool get showNavigationRail => _showNavigationRail;
+
+  set showNavigationRail(bool show){
+    _showNavigationRail = show;
+    notifyListeners();
+  }
+
 }
 
 class MyApp extends StatelessWidget {
@@ -11,13 +43,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ChangeNotifierProvider(
+      create: (context) => AppState(),
+      child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
           useMaterial3: true,
         ),
         home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
     );
   }
 }
@@ -32,44 +67,66 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+
     Widget page;
-    switch (_selectedIndex) {
+    switch (appState.selectedIndex) {
       case 0:
         page = CreateUserForm();
       case 1:
         page = ListUsers();
       default:
-        throw UnimplementedError('no widget for $_selectedIndex');
+        throw UnimplementedError('no widget for $appState.selectedIndex');
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          appState.appTitle,
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.reorder, color: Colors.white),
+          onPressed: () {
+            appState.showNavigationRail = !appState.showNavigationRail;
+          },
+        ),
+        leadingWidth: 80,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
       body: Row(
         children: [
-          NavigationRail(
+          appState.showNavigationRail ? NavigationRail(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             destinations: [
               NavigationRailDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
+                icon: Icon(Icons.add_box_outlined, color: Colors.white),
+                selectedIcon: Icon(Icons.add_box_rounded, color: Colors.white),
                 label: Text('Home'),
               ),
               NavigationRailDestination(
-                icon: Icon(Icons.view_list_outlined),
-                selectedIcon: Icon(Icons.view_list_rounded),
+                icon: Icon(Icons.view_list_outlined, color: Colors.white),
+                selectedIcon: Icon(Icons.view_list_rounded, color: Colors.white),
                 label: Text('Favorites'),
               ),
             ],
-            selectedIndex: _selectedIndex,
+            selectedIndex: appState.selectedIndex,
             onDestinationSelected: (value) {
               setState(() {
-                _selectedIndex = value;
+                appState.selectedIndex = value;
+                switch(value){
+                  case 0:
+                    appState.appTitle = "Create User";
+                  case 1:
+                    appState.appTitle = "Users List";
+                  default:
+                    throw UnimplementedError('no widget for $appState.selectedIndex');
+                }
               });
             },
-          ),
+          ) : SizedBox(),
           Expanded(
             child: Container(
               child: page,
