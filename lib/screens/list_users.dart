@@ -2,43 +2,40 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:localstorage/localstorage.dart';
+
 class ListUsers extends StatefulWidget {
   @override
   State<ListUsers> createState() => _ListUsersState();
 }
 
 class _ListUsersState extends State<ListUsers> {
+
   Future<List<Map<String, dynamic>>> getListUsers() async {
-    List<Map<String, dynamic>> users = [];
-    final File jsonFile = File('assets/local_data.json');
-    try {
-      final jsonString = await jsonFile.readAsString();
-      final data = json.decode(jsonString);
-      users = List<Map<String, dynamic>>.from(data['users']);
-    } catch(err) {
-      print('Error al agregar el registro: $err');
-    }
-    return users;
+    final LocalStorage storage = LocalStorage('my_app');
+    List<Map<String, dynamic>> records =
+    (storage.getItem('records') as List<dynamic>)
+        .cast<Map<String, dynamic>>();
+    print(records);
+    return records;
   }
 
-  Future<void> DeleteUser(id) async {
-    List<Map<dynamic, dynamic>> users = [];
-    final File jsonFile = File('assets/local_data.json');
+  Future<void> DeleteUser(int id) async {
+    final LocalStorage storage = LocalStorage('my_app');
+    List<Map<String, dynamic>> records =
+    (storage.getItem('records') as List<dynamic>)
+        .cast<Map<String, dynamic>>();
+
     try {
+      records.removeWhere((record) => record['id'] == id);
 
-      final jsonString = await jsonFile.readAsString();
-      final data = json.decode(jsonString);
-      //print(data['users']);
-      users = List<Map<dynamic, dynamic>>.from(data['users']);
+      await storage.setItem('records', records);
 
-      users.removeWhere((item) => item['id'] == id);
-
-      data['users'] = users;
-      final updatedJsonString = json.encode(data);
-      await jsonFile.writeAsString(updatedJsonString);
-    } catch(err) {
-      print('Error al agregar el registro: $err');
+      print('Usuario eliminado con éxito');
+    } catch (err) {
+      print('Error al eliminar el usuario: $err');
     }
+
     setState(() {});
   }
 
