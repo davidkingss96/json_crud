@@ -26,24 +26,25 @@ class _CreateUserFormState extends State<CreateUserForm> {
     return valid;
   }
 
-  void ClearInputs() {
+  void clearInputs() {
     nameController.clear();
     lastNameController.clear();
     emailController.clear();
     dateInput.clear();
+    print('Se han limpiado los inputs');
   }
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-
+    DateTime selectedDate = appState.isEditing ? DateTime.parse(appState.currentUser['birthDate']) : DateTime(1990);
     if(appState.isEditing){
       nameController.text = appState.currentUser['name'];
       lastNameController.text = appState.currentUser['lastName'];
       emailController.text = appState.currentUser['email'];
       dateInput.text = appState.currentUser['birthDate'];
     }else{
-      ClearInputs();
+      //clearInputs();
     }
     return Padding(
       padding: EdgeInsets.all(20),
@@ -105,16 +106,15 @@ class _CreateUserFormState extends State<CreateUserForm> {
                 onTap: () async {
                   DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: DateTime(1990),
+                      initialDate: selectedDate,
                       firstDate: DateTime(1950),
-                      lastDate: DateTime.now());
+                      lastDate: DateTime.now()
+                  );
                   if (pickedDate != null) {
-                    String formattedDate =
-                        DateFormat('yyyy-MM-dd').format(pickedDate);
-                    setState(() {
-                      dateInput.text =
-                          formattedDate; //set output date to TextField value.
-                    });
+                    String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+
+                    dateInput.text = formattedDate;
+                    selectedDate = pickedDate;
                   }
                 },
               ),
@@ -170,7 +170,7 @@ class _CreateUserFormState extends State<CreateUserForm> {
                                 );
                               },
                             );
-                            ClearInputs();
+                            clearInputs();
                           } catch (err) {
                             print('Error creating user: $err');
                           }
@@ -180,7 +180,7 @@ class _CreateUserFormState extends State<CreateUserForm> {
                     !appState.isEditing ? ElevatedButton(
                       child: const Text('Clear'),
                       onPressed: () {
-                        ClearInputs();
+                        clearInputs();
                       },
                     ) : SizedBox(),
                   ]

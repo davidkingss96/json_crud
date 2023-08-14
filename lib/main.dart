@@ -64,7 +64,7 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Map<String, dynamic> _currentUser = [] as Map<String, dynamic>;
+  Map<String, dynamic> _currentUser = {};
 
   Map<String, dynamic> get currentUser => _currentUser;
   set currentUser(Map<String, dynamic> user) {
@@ -114,6 +114,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = ListUsers();
       case 2:
         page = ListDataApi();
+      case 3:
+        page = ListDataApi();
       default:
         throw UnimplementedError('no widget for $appState.selectedIndex');
     }
@@ -153,6 +155,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 selectedIcon: Icon(Icons.signal_wifi_4_bar_outlined, color: Colors.white),
                 label: Text('API List', style: TextStyle(color: Colors.white)),
               ),
+              NavigationRailDestination(
+                icon: Icon(Icons.add_circle_outline, color: Colors.white),
+                selectedIcon: Icon(Icons.add_circle_outlined, color: Colors.white),
+                label: Text('API List', style: TextStyle(color: Colors.white)),
+              ),
             ],
             selectedIndex: appState.selectedIndex,
             onDestinationSelected: (value) {
@@ -166,6 +173,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     appState.appTitle = "Users List";
                   case 2:
                     appState.appTitle = "API Data List";
+                  case 3:
+                    appState.appTitle = "Create on API";
                   default:
                     throw UnimplementedError('no widget for $appState.selectedIndex');
                 }
