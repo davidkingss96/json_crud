@@ -26,7 +26,22 @@ class UserStorage {
     _storage.setItem('records', records);
   }
 
-  Future<void> DeleteUser(int id) async {
+  Future<void> setUserLocal(user) async {
+    await _ensureInitialized();
+    List<Map<String, dynamic>> records =
+        (_storage.getItem('records') as List<dynamic>)
+            .cast<Map<String, dynamic>>() ?? [];
+
+    final existingUserIndex = records.indexWhere((record) => record['id'] == user['id']);
+    if (existingUserIndex != -1) {
+      records[existingUserIndex] = user;
+      _storage.setItem('records', records);
+    } else {
+      print('Usuario no encontrado');
+    }
+  }
+
+  Future<void> deleteUser(int id) async {
     await _ensureInitialized();
     List<Map<String, dynamic>> records =
     (_storage.getItem('records') as List<dynamic>)

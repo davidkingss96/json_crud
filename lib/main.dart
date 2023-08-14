@@ -1,8 +1,9 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/create_user_form.dart';
 import 'screens/list_users.dart';
-import 'package:provider/provider.dart';
+import 'screens/list_data_api.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,6 +37,40 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _extendedNavigationRail = false;
+
+  bool get extendedNavigationRail => _extendedNavigationRail;
+
+  set extendedNavigationRail(bool show){
+    _extendedNavigationRail = show;
+    notifyListeners();
+  }
+
+  Axis _directionButtons = Axis.horizontal;
+
+  Axis get directionButtons => _directionButtons;
+
+  set directionButtons(Axis show){
+    _directionButtons = show;
+    notifyListeners();
+  }
+
+  bool _isEditing = false;
+
+  bool get isEditing => _isEditing;
+
+  set isEditing(bool show){
+    _isEditing = show;
+    notifyListeners();
+  }
+
+  Map<String, dynamic> _currentUser = [] as Map<String, dynamic>;
+
+  Map<String, dynamic> get currentUser => _currentUser;
+  set currentUser(Map<String, dynamic> user) {
+    _currentUser = user;
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -77,6 +112,8 @@ class _MyHomePageState extends State<MyHomePage> {
         page = CreateUserForm();
       case 1:
         page = ListUsers();
+      case 2:
+        page = ListDataApi();
       default:
         throw UnimplementedError('no widget for $appState.selectedIndex');
     }
@@ -104,12 +141,17 @@ class _MyHomePageState extends State<MyHomePage> {
               NavigationRailDestination(
                 icon: Icon(Icons.add_box_outlined, color: Colors.white),
                 selectedIcon: Icon(Icons.add_box_rounded, color: Colors.white),
-                label: Text('Home'),
+                label: Text('Create', style: TextStyle(color: Colors.white)),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.view_list_outlined, color: Colors.white),
                 selectedIcon: Icon(Icons.view_list_rounded, color: Colors.white),
-                label: Text('Favorites'),
+                label: Text('Users List', style: TextStyle(color: Colors.white)),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.wifi_outlined, color: Colors.white),
+                selectedIcon: Icon(Icons.signal_wifi_4_bar_outlined, color: Colors.white),
+                label: Text('API List', style: TextStyle(color: Colors.white)),
               ),
             ],
             selectedIndex: appState.selectedIndex,
@@ -119,13 +161,42 @@ class _MyHomePageState extends State<MyHomePage> {
                 switch(value){
                   case 0:
                     appState.appTitle = "Create User";
+                    appState.isEditing = false;
                   case 1:
                     appState.appTitle = "Users List";
+                  case 2:
+                    appState.appTitle = "API Data List";
                   default:
                     throw UnimplementedError('no widget for $appState.selectedIndex');
                 }
               });
             },
+            trailing: Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: IconButton(
+                  onPressed: () async {
+                    setState(() {
+                      appState.extendedNavigationRail = !appState.extendedNavigationRail;
+                    });
+                    if(appState.extendedNavigationRail){
+                      setState(() {
+                        appState.directionButtons = Axis.vertical;
+                      });
+                    }else{
+                      await Future.delayed(const Duration(milliseconds: 100));
+                      setState(() {
+                        appState.directionButtons = Axis.horizontal;
+                      });
+                    }
+                  },
+                  icon: appState.extendedNavigationRail ?
+                  Icon(Icons.keyboard_arrow_left, color: Colors.white) :
+                  Icon(Icons.keyboard_arrow_right, color: Colors.white),
+                ),
+              ),
+            ),
+            extended: appState.extendedNavigationRail,
           ) : SizedBox(),
           Expanded(
             child: Container(

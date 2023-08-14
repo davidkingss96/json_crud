@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../main.dart';
 import '../users.dart';
 
 class ListUsers extends StatefulWidget {
@@ -12,6 +14,7 @@ class _ListUsersState extends State<ListUsers> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return Scaffold(
         body: FutureBuilder<List<Map<String, dynamic>>>(
           future: userStorage.getListUsers(),
@@ -43,7 +46,7 @@ class _ListUsersState extends State<ListUsers> {
                                       actions: <Widget>[
                                         ElevatedButton(
                                           onPressed: () {
-                                            userStorage.DeleteUser(user['id']);
+                                            userStorage.deleteUser(user['id']);
                                             Navigator.of(context).pop();
                                             setState(() {});
                                           },
@@ -64,7 +67,13 @@ class _ListUsersState extends State<ListUsers> {
                             child: Icon(Icons.delete_forever),
                           ),
                           onTap: () {
-
+                            setState(() {
+                              appState.selectedIndex = 0;
+                              appState.isEditing = true;
+                              appState.currentUser = user;
+                              var userName = user['name'];
+                              appState.appTitle = "Edit user $userName";
+                            });
                           }
                       )
                   );
