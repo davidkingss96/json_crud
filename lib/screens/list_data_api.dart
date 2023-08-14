@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
+import '../main.dart';
 import '../users_api.dart';
 
 class ListDataApi extends StatefulWidget {
@@ -15,6 +14,7 @@ class _ListDataApi extends State<ListDataApi> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return Scaffold(
         body: FutureBuilder<List<Map<String, dynamic>>>(
           future: userApi.getListUsers(),
@@ -36,8 +36,44 @@ class _ListDataApi extends State<ListDataApi> {
                       child: ListTile(
                           title: Text(user['firtsname']),
                           subtitle: Text(user['lastname']),
+                          trailing: TextButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Are you sure to delete the user?'),
+                                      actions: <Widget>[
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            userApi.deleteUser(user['id']);
+                                            Navigator.of(context).pop();
+                                            setState(() {});
+                                          },
+                                          child: Text('Yes'),
+                                        ),
+                                        SizedBox(width: 20),
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('No')
+                                        )
+                                      ],
+                                    );
+                                  }
+                              );
+                            },
+                            child: Icon(Icons.delete_forever),
+                          ),
                           onTap: () {
-
+                            setState(() {
+                              appState.selectedIndex = 3;
+                              appState.isEditingApi = true;
+                              appState.currentUserApi = user;
+                              var userName = user['name'];
+                              appState.appTitle = "Edit user $userName";
+                            });
                           }
                       )
                   );

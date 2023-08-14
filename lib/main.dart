@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'screens/create_user_form.dart';
 import 'screens/list_users.dart';
 import 'screens/list_data_api.dart';
+import 'screens/create_user_api.dart';
 
 void main() {
   runApp(const MyApp());
@@ -71,6 +72,23 @@ class AppState extends ChangeNotifier {
     _currentUser = user;
     notifyListeners();
   }
+
+  bool _isEditingApi = false;
+
+  bool get isEditingApi => _isEditingApi;
+
+  set isEditingApi(bool show){
+    _isEditingApi = show;
+    notifyListeners();
+  }
+
+  Map<String, dynamic> _currentUserApi = {};
+
+  Map<String, dynamic> get currentUserApi => _currentUserApi;
+  set currentUserApi(Map<String, dynamic> user) {
+    _currentUserApi = user;
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -115,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 2:
         page = ListDataApi();
       case 3:
-        page = ListDataApi();
+        page = CreateUserApi();
       default:
         throw UnimplementedError('no widget for $appState.selectedIndex');
     }
@@ -175,6 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     appState.appTitle = "API Data List";
                   case 3:
                     appState.appTitle = "Create on API";
+                    appState.isEditingApi = false;
                   default:
                     throw UnimplementedError('no widget for $appState.selectedIndex');
                 }

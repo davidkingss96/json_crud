@@ -24,44 +24,70 @@ class UserApi {
     return [];
   }
 
-  Future<http.Response> addNewUserLocal(Object newUser) async {
-    return http.post(
+  Future<http.Response> addNewUserLocal(newUser) async {
+    final response = await http.post(
       Uri.parse('https://app.agrocampo.net.co/flutter/Api/simple-rest/items/create'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-
+      body: jsonEncode(newUser)
     );
+    print(response.statusCode);
+    if (response.statusCode == 201) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      print(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Failed to create album.');
+    }
+    return response;
   }
 
   Future<void> setUserLocal(user) async {
-    await _ensureInitialized();
-    List<Map<String, dynamic>> records =
-        (_storage.getItem('records') as List<dynamic>)
-            .cast<Map<String, dynamic>>() ?? [];
-
-    final existingUserIndex = records.indexWhere((record) => record['id'] == user['id']);
-    if (existingUserIndex != -1) {
-      records[existingUserIndex] = user;
-      _storage.setItem('records', records);
+    print(user);
+    final response = await http.post(
+        Uri.parse('https://app.agrocampo.net.co/flutter/Api/simple-rest/items/update'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(user)
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      print(jsonDecode(response.body));
     } else {
-      print('Usuario no encontrado');
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Failed to create album.');
     }
   }
 
   Future<void> deleteUser(int id) async {
-    await _ensureInitialized();
-    List<Map<String, dynamic>> records =
-    (_storage.getItem('records') as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+    final response = await http.post(
+        Uri.parse('https://app.agrocampo.net.co/flutter/Api/simple-rest/items/delete'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          "id" : id
+        })
+    );
 
-    try {
-      records.removeWhere((record) => record['id'] == id);
-      await _storage.setItem('records', records);
-      print('Usuario eliminado con éxito');
-    } catch (err) {
-      print('Error al eliminar el usuario: $err');
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      print(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Failed to create album.');
     }
+    print(response);
   }
 
   int getNextId(List<Map<String, dynamic>> records) {
