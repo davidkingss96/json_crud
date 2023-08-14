@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:io';
 
-import 'package:localstorage/localstorage.dart';
+import '../users.dart';
 
 class ListUsers extends StatefulWidget {
   @override
@@ -10,45 +8,18 @@ class ListUsers extends StatefulWidget {
 }
 
 class _ListUsersState extends State<ListUsers> {
-
-  Future<List<Map<String, dynamic>>> getListUsers() async {
-    final LocalStorage storage = LocalStorage('my_app');
-    List<Map<String, dynamic>> records =
-    (storage.getItem('records') as List<dynamic>)
-        .cast<Map<String, dynamic>>();
-    print(records);
-    return records;
-  }
-
-  Future<void> DeleteUser(int id) async {
-    final LocalStorage storage = LocalStorage('my_app');
-    List<Map<String, dynamic>> records =
-    (storage.getItem('records') as List<dynamic>)
-        .cast<Map<String, dynamic>>();
-
-    try {
-      records.removeWhere((record) => record['id'] == id);
-
-      await storage.setItem('records', records);
-
-      print('Usuario eliminado con éxito');
-    } catch (err) {
-      print('Error al eliminar el usuario: $err');
-    }
-
-    setState(() {});
-  }
+  final UserStorage userStorage = UserStorage();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: getListUsers(),
+          future: userStorage.getListUsers(),
           builder: (context, snapshot){
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+              return Center(child: Text('Error on FutureBuilder: ${snapshot.error}'));
             } else if (!snapshot.hasData) {
               return Center(child: Text('No data available'));
             } else {
@@ -72,8 +43,9 @@ class _ListUsersState extends State<ListUsers> {
                                       actions: <Widget>[
                                         ElevatedButton(
                                           onPressed: () {
-                                            DeleteUser(user['id']);
+                                            userStorage.DeleteUser(user['id']);
                                             Navigator.of(context).pop();
+                                            setState(() {});
                                           },
                                           child: Text('Yes'),
                                         ),
@@ -104,4 +76,3 @@ class _ListUsersState extends State<ListUsers> {
     );
   }
 }
-
