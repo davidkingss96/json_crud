@@ -44,7 +44,7 @@ class _CreateUserFormState extends State<CreateUserForm> {
       emailController.text = appState.currentUser['email'];
       dateInput.text = appState.currentUser['birthDate'];
     }else{
-      //clearInputs();
+      clearInputs();
     }
     return Padding(
       padding: EdgeInsets.all(20),

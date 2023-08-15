@@ -10,16 +10,12 @@ class UserStorage {
   Future<List<Map<String, dynamic>>> getListUsers() async {
     await _ensureInitialized();
     List<Map<String, dynamic>> records =
-    (_storage.getItem('records') as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+        (_storage.getItem('records') as List<Map<String, dynamic>>?) ?? [];
     return records;
   }
 
   Future<void> addNewUserLocal(newUser) async {
-    await _ensureInitialized();
-    List<Map<String, dynamic>> records =
-    (_storage.getItem('records') as List<dynamic>)
-        .cast<Map<String, dynamic>>() ?? [];
+    List<Map<String, dynamic>> records = await getListUsers();
 
     newUser['id'] = getNextId(records);
     records.add(newUser);
@@ -27,10 +23,7 @@ class UserStorage {
   }
 
   Future<void> setUserLocal(user) async {
-    await _ensureInitialized();
-    List<Map<String, dynamic>> records =
-        (_storage.getItem('records') as List<dynamic>)
-            .cast<Map<String, dynamic>>() ?? [];
+    List<Map<String, dynamic>> records = await getListUsers();
 
     final existingUserIndex = records.indexWhere((record) => record['id'] == user['id']);
     if (existingUserIndex != -1) {
@@ -42,10 +35,7 @@ class UserStorage {
   }
 
   Future<void> deleteUser(int id) async {
-    await _ensureInitialized();
-    List<Map<String, dynamic>> records =
-    (_storage.getItem('records') as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+    List<Map<String, dynamic>> records = await getListUsers();
 
     try {
       records.removeWhere((record) => record['id'] == id);

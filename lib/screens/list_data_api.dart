@@ -45,8 +45,9 @@ class _ListDataApi extends State<ListDataApi> {
                                       title: Text('Are you sure to delete the user?'),
                                       actions: <Widget>[
                                         ElevatedButton(
-                                          onPressed: () {
+                                          onPressed: () async {
                                             userApi.deleteUser(user['id']);
+                                            await Future.delayed(const Duration(milliseconds: 300));
                                             Navigator.of(context).pop();
                                             setState(() {});
                                           },

@@ -21,7 +21,9 @@ class _ListUsersState extends State<ListUsers> {
           builder: (context, snapshot){
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
+            } else if (snapshot.hasError && snapshot.data == null) {
+              return Center(child: Text('No data available'));
+            }else if(snapshot.hasError){
               return Center(child: Text('Error on FutureBuilder: ${snapshot.error}'));
             } else if (!snapshot.hasData) {
               return Center(child: Text('No data available'));
