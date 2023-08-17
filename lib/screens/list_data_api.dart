@@ -36,6 +36,7 @@ class _ListDataApi extends State<ListDataApi> {
                       child: ListTile(
                           title: Text(user['firtsname']),
                           subtitle: Text(user['lastname']),
+
                           trailing: TextButton(
                             onPressed: () {
                               showDialog(
@@ -72,7 +73,7 @@ class _ListDataApi extends State<ListDataApi> {
                               appState.selectedIndex = 3;
                               appState.isEditingApi = true;
                               appState.currentUserApi = user;
-                              var userName = user['name'];
+                              var userName = user['firtsname'];
                               appState.appTitle = "Edit user $userName";
                             });
                           }

@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 import '../main.dart';
 import '../users_api.dart';
@@ -48,7 +51,7 @@ class _CreateUserApiState extends State<CreateUserApi> {
       dateInput.text = appState.currentUserApi['created'];
       phoneController.text = appState.currentUserApi['telefono'];
     }else{
-      //clearInputs();
+      clearInputs();
     }
     return Padding(
         padding: EdgeInsets.all(20),
@@ -143,7 +146,7 @@ class _CreateUserApiState extends State<CreateUserApi> {
                     children: [
                       ElevatedButton(
                         child: const Text('Submit'),
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             final newRecord = {
                               "firtsname": nameController.text,
@@ -152,8 +155,16 @@ class _CreateUserApiState extends State<CreateUserApi> {
                               "created": "${dateInput.text} 01:00:00",
                               "telefono" : phoneController.text,
                               "category_id" : 1,
-                              //"id": appState.isEditingApi ? appState.currentUser['id'] : 0,
                             };
+
+                            final String message;
+
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => Center(child: CircularProgressIndicator()),
+                            );
+
                             try {
                               if(appState.isEditingApi){
                                 newRecord["id"] = appState.currentUserApi['id'];
@@ -161,39 +172,42 @@ class _CreateUserApiState extends State<CreateUserApi> {
                               }else{
                                 userApi.addNewUserLocal(newRecord);
                               }
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: appState.isEditingApi ? Text('User updated successfully') : Text('User created successfully'),
-                                    actions: <Widget>[
-                                      ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              appState.isEditingApi = false;
-                                              appState.selectedIndex = 3;
-                                              appState.appTitle = "Create User";
-                                            });
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('New User')),
-                                      SizedBox(width: 20),
-                                      ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              appState.selectedIndex =2;
-                                            });
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('List Users')),
-                                    ],
-                                  );
-                                },
-                              );
                               clearInputs();
                             } catch (err) {
                               print('Error creating user: $err');
                             }
+
+                            Navigator.of(context).pop();
+
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Success'),
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            appState.isEditingApi = false;
+                                            appState.selectedIndex = 3;
+                                            appState.appTitle = "Create User";
+                                          });
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('New User')),
+                                    SizedBox(width: 20),
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            appState.selectedIndex =2;
+                                          });
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('List Users')),
+                                  ],
+                                );
+                              },
+                            );
                           }
                         },
                       ),

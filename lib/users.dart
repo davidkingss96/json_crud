@@ -9,8 +9,14 @@ class UserStorage {
 
   Future<List<Map<String, dynamic>>> getListUsers() async {
     await _ensureInitialized();
+
+    final storedRecords = _storage.getItem('records');
+    if (storedRecords == null) {
+      return [];
+    }
     List<Map<String, dynamic>> records =
-        (_storage.getItem('records') as List<Map<String, dynamic>>?) ?? [];
+    (storedRecords as List).cast<Map<String, dynamic>>();
+
     return records;
   }
 

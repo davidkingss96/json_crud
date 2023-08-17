@@ -1,14 +1,8 @@
 import 'dart:convert';
 
-import 'package:localstorage/localstorage.dart';
 import 'package:http/http.dart' as http;
 
 class UserApi {
-  final LocalStorage _storage = LocalStorage('my_app');
-
-  Future<void> _ensureInitialized() async {
-    await _storage.ready;
-  }
 
   Future<List<Map<String, dynamic>>> getListUsers() async {
     try {
@@ -24,70 +18,40 @@ class UserApi {
     return [];
   }
 
-  Future<http.Response> addNewUserLocal(newUser) async {
+  Future<http.Response> apiCallPost(body, action) async {
     final response = await http.post(
-      Uri.parse('https://app.agrocampo.net.co/flutter/Api/simple-rest/items/create'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(newUser)
+        Uri.parse('https://app.agrocampo.net.co/flutter/Api/simple-rest/items/$action'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(body)
     );
-    print(response.statusCode);
-    if (response.statusCode == 201) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      print(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Failed to create album.');
-    }
+
     return response;
   }
 
-  Future<void> setUserLocal(user) async {
-    print(user);
-    final response = await http.post(
-        Uri.parse('https://app.agrocampo.net.co/flutter/Api/simple-rest/items/update'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(user)
-    );
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      print(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Failed to create album.');
+  Future<String> addNewUserLocal(newUser) async {
+    final response = await apiCallPost(newUser, 'create');
+    if (response.statusCode != 201) {
+      throw Exception('Failed to create user.');
     }
+    return jsonDecode(response.body)['message'];
   }
 
-  Future<void> deleteUser(int id) async {
-    final response = await http.post(
-        Uri.parse('https://app.agrocampo.net.co/flutter/Api/simple-rest/items/delete'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          "id" : id
-        })
-    );
-
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      print(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Failed to create album.');
+  Future<String> setUserLocal(user) async {
+    final response = await apiCallPost(user, 'update');
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update user.');
     }
-    print(response);
+    return jsonDecode(response.body)['message'];
+  }
+
+  Future<String> deleteUser(int id) async {
+    final response = await apiCallPost({"id" : id}, 'delete');
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete user.');
+    }
+    return jsonDecode(response.body)['message'];
   }
 
   int getNextId(List<Map<String, dynamic>> records) {
